@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>بازی</title>
+
+    <!-- Bale Mini App -->
+    <script src="https://tapi.bale.ai/miniapp.js?1"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+        }
+
+        .body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            width: 100%;
+            background-color: #fff;
+            padding: 16px;
+        }
+
+        h1 {
+            font-size: 22px;
+            margin-top: 10px;
+        }
+
+        #user_data {
+            background: #f1f1f1;
+            padding: 15px;
+            border-radius: 10px;
+            line-height: 2;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 10px;
+            background: #0088cc;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="body">
+
+        <h1>اطلاعات کاربر</h1>
+
+        <p id="user_data">
+            در حال دریافت اطلاعات...
+        </p>
+
+        <h1>دکمه‌ها</h1>
+
+        <div>
+            <button id="close">
+                بستن
+            </button>
+
+            <button id="enableClosingConfirmation">
+                فعال کردن تأیید بستن
+            </button>
+
+            <button id="expand">
+                تمام صفحه
+            </button>
+
+            <button id="requestContact">
+                دریافت شماره تلفن
+            </button>
+        </div>
+
+    </div>
+
+
+    <script>
+
+        window.addEventListener("load", () => {
+
+            const userDataEl =
+                document.querySelector("#user_data");
+
+            const closeBtnEl =
+                document.querySelector("#close");
+
+            const expandBtnEl =
+                document.querySelector("#expand");
+
+            const enableClosingConfirmationBtnEl =
+                document.querySelector("#enableClosingConfirmation");
+
+            const requestContactBtnEl =
+                document.querySelector("#requestContact");
+
+
+            // =========================
+            // اطلاعات کاربر
+            // =========================
+
+            const user =
+                window.Bale.WebApp.initDataUnsafe.user;
+
+
+            if (user) {
+
+                userDataEl.innerHTML = `
+                    ID: ${user.id} <br>
+                    First Name: ${user.first_name || "-"} <br>
+                    Username: ${user.username || "-"} <br>
+                `;
+
+            } else {
+
+                userDataEl.innerHTML =
+                    "اطلاعات کاربر پیدا نشد.";
+
+            }
+
+
+            // =========================
+            // Settings Button
+            // =========================
+
+            window.Bale.WebApp.SettingsButton.show();
+
+
+            window.Bale.WebApp.onEvent(
+                "settingsButtonPressed",
+                () => {
+
+                    console.log(
+                        "Settings Button Pressed"
+                    );
+
+                }
+            );
+
+
+            // =========================
+            // بستن Mini App
+            // =========================
+
+            closeBtnEl.addEventListener(
+                "click",
+                () => {
+
+                    window.Bale.WebApp.close();
+
+                }
+            );
+
+
+            // =========================
+            // دریافت شماره تلفن
+            // =========================
+
+            requestContactBtnEl.addEventListener(
+                "click",
+                () => {
+
+                    window.Bale.WebApp.requestContact(
+                        (wasShared) => {
+
+                            console.log(
+                                "First way:",
+                                wasShared
+                                    ? "Number shared by user."
+                                    : "Number not shared by user."
+                            );
+
+                        }
+                    );
+
+
+                    window.Bale.WebApp.onEvent(
+                        "contactRequested",
+                        (event) => {
+
+                            const wasShared =
+                                event.status === "sent";
+
+                            console.log(
+                                "Second way:",
+                                wasShared
+                                    ? "Number shared by user."
+                                    : "Number not shared by user."
+                            );
+
+                        }
+                    );
+
+                }
+            );
+
+
+            // =========================
+            // تأیید هنگام بستن
+            // =========================
+
+            enableClosingConfirmationBtnEl.addEventListener(
+                "click",
+                () => {
+
+                    if (
+                        window.Bale.WebApp
+                            .isClosingConfirmationEnabled
+                    ) {
+
+                        window.Bale.WebApp
+                            .disableClosingConfirmation();
+
+                        enableClosingConfirmationBtnEl.textContent =
+                            "فعال کردن تأیید بستن";
+
+                    } else {
+
+                        window.Bale.WebApp
+                            .enableClosingConfirmation();
+
+                        enableClosingConfirmationBtnEl.textContent =
+                            "غیرفعال کردن تأیید بستن";
+
+                    }
+
+                }
+            );
+
+
+            // =========================
+            // Expand
+            // =========================
+
+            expandBtnEl.addEventListener(
+                "click",
+                () => {
+
+                    window.Bale.WebApp.expand();
+
+                }
+            );
+
+        });
+
+    </script>
+
+</body>
+</html>
